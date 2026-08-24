@@ -1,0 +1,36 @@
+# Default values for cats-dogs-app Helm chart.
+# Override these at deploy time with --set or a custom values file.
+
+replicaCount: 1
+
+image:
+  repository: YOUR_DOCKERHUB_USERNAME/cats-dogs-api
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: NodePort
+  port: 80
+  targetPort: 8000
+  nodePort: 30080
+
+env:
+  modelPath: /app/model.h5
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+
+livenessProbe:
+  path: /health
+  initialDelaySeconds: 15
+  periodSeconds: 20
+
+readinessProbe:
+  path: /health
+  initialDelaySeconds: 10
+  periodSeconds: 10

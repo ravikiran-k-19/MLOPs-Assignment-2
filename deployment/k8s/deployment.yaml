@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cats-dogs-app
+  labels:
+    app: cats-dogs-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cats-dogs-app
+  template:
+    metadata:
+      labels:
+        app: cats-dogs-app
+    spec:
+      containers:
+        - name: cats-dogs-app
+          image: YOUR_DOCKERHUB_USERNAME/cats-dogs-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MODEL_PATH
+              value: /app/model.h5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"

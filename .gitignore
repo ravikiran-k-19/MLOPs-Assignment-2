@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+venv/
+.venv/
+
+# Data (tracked by DVC)
+data/raw/
+data/processed/
+
+# Model artifacts
+*.h5
+*.pkl
+
+# MLflow
+mlruns/
+
+# DVC
+.dvc/cache/
+.dvc/tmp/
+
+# Docker
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db

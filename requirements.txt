@@ -1,0 +1,28 @@
+# Deep learning
+tensorflow==2.17.0
+
+# API serving
+fastapi==0.110.0
+uvicorn==0.29.0
+python-multipart==0.0.9
+
+# Image processing
+Pillow==10.3.0
+
+# Experiment tracking
+mlflow==2.11.3
+
+# Data versioning
+dvc==3.49.0
+pathspec==0.12.1  # pin: newer pathspec removed _DIR_MARK, which dvc imports
+
+# Evaluation utilities
+scikit-learn==1.4.2
+matplotlib==3.8.4
+numpy==1.26.4
+
+# Testing
+pytest==8.1.1
+
+# HTTP client (for smoke test / simulate_requests)
+requests==2.31.0
