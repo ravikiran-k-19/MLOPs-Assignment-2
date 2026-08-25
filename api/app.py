@@ -19,13 +19,12 @@ import time
 import json
 import logging
 from io import BytesIO
-
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 from PIL import Image
 from src.predict import run_inference
 
-# Allow importing from src/ when running inside the container (src is on PYTHONPATH)
+# Allow importing from src/ when running inside the container
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # ── Logging setup ──────────────────────────────────────────────────────────────
