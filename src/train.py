@@ -137,10 +137,22 @@ def train(data_dir: str, epochs: int, batch_size: int, learning_rate: float):
 
         # Log per-epoch metrics
         for epoch_idx in range(epochs):
-            mlflow.log_metric("train_loss", history.history["loss"][epoch_idx], step=epoch_idx)
-            mlflow.log_metric("train_accuracy", history.history["accuracy"][epoch_idx], step=epoch_idx)
+            mlflow.log_metric(
+                "train_loss", 
+                history.history["loss"][epoch_idx], 
+                step=epoch_idx
+            )
+            mlflow.log_metric(
+                "train_accuracy", 
+                history.history["accuracy"][epoch_idx], 
+                step=epoch_idx
+            )
             mlflow.log_metric("val_loss", history.history["val_loss"][epoch_idx], step=epoch_idx)
-            mlflow.log_metric("val_accuracy", history.history["val_accuracy"][epoch_idx], step=epoch_idx)
+            mlflow.log_metric(
+                "val_accuracy", 
+                history.history["val_accuracy"][epoch_idx], 
+                step=epoch_idx
+            )
 
         # Evaluate on test set
         test_gen.reset()

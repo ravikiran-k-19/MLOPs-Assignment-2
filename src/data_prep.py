@@ -14,7 +14,6 @@ Usage:
 
 import os
 import argparse
-import shutil
 import random
 from PIL import Image
 
@@ -108,7 +107,11 @@ def prepare_dataset(raw_dir: str, output_dir: str):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Prepare Cats vs Dogs dataset")
     parser.add_argument("--raw_dir", default="data/raw", help="Path to raw images")
-    parser.add_argument("--output_dir", default="data/processed", help="Path to save processed images")
+    parser.add_argument(
+        "--output_dir", 
+        default="data/processed",
+        help="Path to save processed images"
+    )
     args = parser.parse_args()
 
     prepare_dataset(args.raw_dir, args.output_dir)

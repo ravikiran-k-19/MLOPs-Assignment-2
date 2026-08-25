@@ -17,7 +17,6 @@ Usage:
 import os
 import sys
 import json
-import time
 import argparse
 import requests
 from datetime import datetime
@@ -75,7 +74,11 @@ def run_simulation(api_url: str, test_dir: str, max_samples: int):
     correct = 0
 
     for idx, (image_path, true_label) in enumerate(samples, 1):
-        print(f"[{idx}/{len(samples)}] {os.path.basename(image_path)} (true: {true_label})", end=" → ")
+        print(
+            f"[{idx}/{len(samples)}] {os.path.basename(image_path)}"
+            f"(true: {true_label})", 
+            end=" → ",
+            )
         response = send_prediction(api_url, image_path)
 
         if response is None:
@@ -122,9 +125,22 @@ def run_simulation(api_url: str, test_dir: str, max_samples: int):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Simulate post-deployment requests and measure accuracy")
-    parser.add_argument("--api_url", default="http://localhost:8000", help="Base URL of the deployed API")
-    parser.add_argument("--test_dir", default="data/processed/test", help="Path to test set directory")
+    parser = argparse.ArgumentParser(
+        description="Simulate post-deployment requests and measure accuracy"
+    )
+
+    parser.add_argument(
+        "--api_url",
+        default="http://localhost:8000",
+        help="Base URL of the deployed API",
+    )
+    
+    parser.add_argument(
+        "--test_dir",
+        default="data/processed/test",
+        help="Path to test set directory",
+    )
+    
     parser.add_argument("--max_samples", type=int, default=20, help="Max number of images to send")
     args = parser.parse_args()
 

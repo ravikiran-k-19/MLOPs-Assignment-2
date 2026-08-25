@@ -1,0 +1,132 @@
+name: CD — Deploy to Minikube via Helm
+
+on:
+  workflow_run:
+    workflows: ["CI — Lint, Test, Coverage, Build & Push"]
+    types:
+      - completed
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: self-hosted
+
+    # Only deploy when CI completed successfully
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+
+      # ==========================================================
+      # 1. Checkout repository
+      # ==========================================================
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Checkout the exact commit that CI successfully built
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      # ==========================================================
+      # 2. Verify required tools on self-hosted runner
+      # ==========================================================
+      - name: Verify Docker
+        shell: powershell
+        run: |
+          docker --version
+
+      - name: Verify kubectl
+        shell: powershell
+        run: |
+          kubectl version --client
+
+      - name: Verify Helm
+        shell: powershell
+        run: |
+          helm version
+
+      - name: Verify Minikube
+        shell: powershell
+        run: |
+          minikube status
+
+      # ==========================================================
+      # 3. Deploy exact image created by CI
+      # ==========================================================
+      - name: Deploy with Helm
+        shell: powershell
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          Write-Host "=========================================="
+          Write-Host "Deploying Cats-Dogs API"
+          Write-Host "=========================================="
+          Write-Host "Image:"
+          Write-Host "$DOCKERHUB_USERNAME/cats-dogs-api:$IMAGE_TAG"
+          Write-Host ""
+
+          helm upgrade --install cats-dogs-app deployment/helm `
+            --set image.repository="$DOCKERHUB_USERNAME/cats-dogs-api" `
+            --set image.tag="$IMAGE_TAG" `
+            --wait `
+            --timeout 120s
+
+      # ==========================================================
+      # 4. Verify Kubernetes rollout
+      # ==========================================================
+      - name: Verify rollout
+        shell: powershell
+        run: |
+          kubectl rollout status deployment/cats-dogs-app --timeout=120s
+
+      # ==========================================================
+      # 5. Show deployed resources
+      # ==========================================================
+      - name: Show deployment status
+        shell: powershell
+        run: |
+          Write-Host "=========================================="
+          Write-Host "Deployment"
+          Write-Host "=========================================="
+          kubectl get deployment cats-dogs-app
+
+          Write-Host ""
+          Write-Host "=========================================="
+          Write-Host "Pods"
+          Write-Host "=========================================="
+          kubectl get pods -l app=cats-dogs-app -o wide
+
+          Write-Host ""
+          Write-Host "=========================================="
+          Write-Host "Service"
+          Write-Host "=========================================="
+          kubectl get service cats-dogs-app
+
+      # ==========================================================
+      # 6. Run end-to-end smoke tests
+      # ==========================================================
+      - name: Run smoke tests
+        shell: powershell
+        run: |
+          .\deployment\smoke_test.ps1
+
+      # ==========================================================
+      # 7. Deployment summary
+      # ==========================================================
+      - name: Deployment summary
+        shell: powershell
+        env:
+          IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: |
+          Write-Host ""
+          Write-Host "=========================================="
+          Write-Host "DEPLOYMENT SUCCESSFUL"
+          Write-Host "=========================================="
+          Write-Host "Image: $DOCKERHUB_USERNAME/cats-dogs-api:$IMAGE_TAG"
+          Write-Host "Application: cats-dogs-app"
+          Write-Host "Namespace: default"
+          Write-Host ""
+          Write-Host "Health check: PASSED"
+          Write-Host "Prediction test: PASSED"
+          Write-Host "=========================================="
