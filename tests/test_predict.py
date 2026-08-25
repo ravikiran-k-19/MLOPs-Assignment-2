@@ -11,10 +11,9 @@ import numpy as np
 import pytest
 from PIL import Image
 from unittest.mock import patch, MagicMock
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from src.predict import preprocess_image, run_inference, LABELS
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # ---------- fixtures ----------
 

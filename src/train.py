@@ -15,7 +15,6 @@ Usage:
 import os
 import argparse
 import matplotlib
-matplotlib.use("Agg")  # non-interactive backend for servers
 import matplotlib.pyplot as plt
 import mlflow
 import mlflow.keras
@@ -23,6 +22,8 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from pathlib import Path
 from model import build_model
+
+matplotlib.use("Agg")  # non-interactive backend for servers
 
 # Label mapping used consistently across train / predict
 LABELS = ["cat", "dog"]  # index 0 = cat, index 1 = dog
@@ -137,12 +138,12 @@ def train(data_dir: str, epochs: int, batch_size: int, learning_rate: float):
         # Log per-epoch metrics
         for epoch_idx in range(epochs):
             mlflow.log_metric(
-                "train_loss", 
+                "train_loss",
                 history.history["loss"][epoch_idx],
                 step=epoch_idx,
             )
             mlflow.log_metric(
-                "train_accuracy", 
+                "train_accuracy",
                 history.history["accuracy"][epoch_idx],
                 step=epoch_idx,
             )

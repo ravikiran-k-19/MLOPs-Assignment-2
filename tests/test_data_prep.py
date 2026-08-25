@@ -9,10 +9,9 @@ import os
 import sys
 import pytest
 from PIL import Image
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from src.data_prep import is_valid_image, resize_and_save, split_list, collect_images
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # ---------- fixtures ----------
 
