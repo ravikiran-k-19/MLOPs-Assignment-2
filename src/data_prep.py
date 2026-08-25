@@ -108,7 +108,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Prepare Cats vs Dogs dataset")
     parser.add_argument("--raw_dir", default="data/raw", help="Path to raw images")
     parser.add_argument(
-        "--output_dir", 
+        "--output_dir",
         default="data/processed",
         help="Path to save processed images"
     )

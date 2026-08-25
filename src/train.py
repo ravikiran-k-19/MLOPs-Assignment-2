@@ -14,7 +14,6 @@ Usage:
 
 import os
 import argparse
-import numpy as np
 import matplotlib
 matplotlib.use("Agg")  # non-interactive backend for servers
 import matplotlib.pyplot as plt
@@ -108,7 +107,7 @@ def plot_confusion_matrix(model, test_gen, save_path: str):
 
 
 def train(data_dir: str, epochs: int, batch_size: int, learning_rate: float):
-    
+
     mlflow.set_tracking_uri(MLRUNS_DIR.as_uri())
     mlflow.set_experiment("cats-vs-dogs-v2")
 
@@ -139,19 +138,19 @@ def train(data_dir: str, epochs: int, batch_size: int, learning_rate: float):
         for epoch_idx in range(epochs):
             mlflow.log_metric(
                 "train_loss", 
-                history.history["loss"][epoch_idx], 
-                step=epoch_idx
+                history.history["loss"][epoch_idx],
+                step=epoch_idx,
             )
             mlflow.log_metric(
                 "train_accuracy", 
-                history.history["accuracy"][epoch_idx], 
-                step=epoch_idx
+                history.history["accuracy"][epoch_idx],
+                step=epoch_idx,
             )
             mlflow.log_metric("val_loss", history.history["val_loss"][epoch_idx], step=epoch_idx)
             mlflow.log_metric(
-                "val_accuracy", 
-                history.history["val_accuracy"][epoch_idx], 
-                step=epoch_idx
+                "val_accuracy",
+                history.history["val_accuracy"][epoch_idx],
+                step=epoch_idx,
             )
 
         # Evaluate on test set

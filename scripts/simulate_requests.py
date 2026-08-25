@@ -76,7 +76,7 @@ def run_simulation(api_url: str, test_dir: str, max_samples: int):
     for idx, (image_path, true_label) in enumerate(samples, 1):
         print(
             f"[{idx}/{len(samples)}] {os.path.basename(image_path)}"
-            f"(true: {true_label})", 
+            f"(true: {true_label})",
             end=" → ",
             )
         response = send_prediction(api_url, image_path)
@@ -134,13 +134,13 @@ if __name__ == "__main__":
         default="http://localhost:8000",
         help="Base URL of the deployed API",
     )
-    
+
     parser.add_argument(
         "--test_dir",
         default="data/processed/test",
         help="Path to test set directory",
     )
-    
+
     parser.add_argument("--max_samples", type=int, default=20, help="Max number of images to send")
     args = parser.parse_args()
 
