@@ -17,6 +17,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # ---------- fixtures ----------
 
+
 @pytest.fixture
 def sample_pil_image():
     """Return a plain 100x100 RGB PIL image."""
