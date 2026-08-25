@@ -1,12 +1,6 @@
 [core]
-    remote = gdrive
-# Local filesystem remote — handy for offline/local `dvc push`/`dvc pull`.
+    remote = local_remote
 ['remote "local_remote"']
     url = ../../dvc_store
-# Google Drive remote — used by CI to pull the trained model before the Docker build.
-# Replace <GDRIVE_FOLDER_ID> with the ID of the Drive folder you push the model to.
-# CI authenticates non-interactively via a service account; the account's JSON key
-# is provided through the GDRIVE_CREDENTIALS_DATA GitHub secret (see ci.yml).
 ['remote "gdrive"']
     url = gdrive://1d6Maf9xVsMQfdys5xtr7GWWW3F0Zkp4r
-    gdrive_use_service_account = true

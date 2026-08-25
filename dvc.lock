@@ -33,12 +33,12 @@ stages:
       size: 1517
     - path: src/train.py
       hash: md5
-      md5: 9ae715f14ec6a10f8c313cc9179a783e
-      size: 5893
+      md5: 65022fdec230567a5dbc0ca85ef0ad49
+      size: 6183
     outs:
     - path: model.h5
       hash: md5
-      md5: 0f9cf3f57fde9d667ac94646cfdcb500
+      md5: 0041528f87e56d616298aa310c4c05fc
       size: 155346696
   evaluate:
     cmd: python src/evaluate.py --data_dir data/processed --model_path model.h5

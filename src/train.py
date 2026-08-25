@@ -22,13 +22,16 @@ import mlflow
 import mlflow.keras
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
+from pathlib import Path
 from model import build_model
 
 # Label mapping used consistently across train / predict
 LABELS = ["cat", "dog"]  # index 0 = cat, index 1 = dog
 IMAGE_SIZE = (224, 224)
 MODEL_PATH = "model.h5"
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+MLRUNS_DIR = PROJECT_ROOT / "mlruns"
 
 
 def make_generators(data_dir: str, batch_size: int):
@@ -105,10 +108,14 @@ def plot_confusion_matrix(model, test_gen, save_path: str):
 
 
 def train(data_dir: str, epochs: int, batch_size: int, learning_rate: float):
-    mlflow.set_experiment("cats-vs-dogs")
+    
+    mlflow.set_tracking_uri(MLRUNS_DIR.as_uri())
+    mlflow.set_experiment("cats-vs-dogs-v2")
 
     with mlflow.start_run():
         # Log hyperparameters
+        mlflow.set_tag("mlflow.user", "Ravikiran")
+        mlflow.set_tag("mlflow.runName", "Cats-Dogs-Baseline-v1")
         mlflow.log_param("epochs", epochs)
         mlflow.log_param("batch_size", batch_size)
         mlflow.log_param("learning_rate", learning_rate)
