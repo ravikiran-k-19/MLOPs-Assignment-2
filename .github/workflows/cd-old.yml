@@ -1,0 +1,39 @@
+name: CD — Deploy to minikube via Helm
+
+on:
+  workflow_run:
+    workflows: ["CI — Test, Build, Push"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Helm Deploy to minikube
+    runs-on: self-hosted  # must be a runner on the machine where minikube runs
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update image tag in Helm values
+        # Stamp the values.yaml with the exact commit SHA pushed in CI
+        run: |
+          IMAGE_TAG=${{ github.event.workflow_run.head_sha }}
+          sed -i "s/tag: latest/tag: ${IMAGE_TAG}/" deployment/helm/values.yaml
+          echo "Deploying image tag: $IMAGE_TAG"
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install cats-dogs-app deployment/helm \
+            --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/cats-dogs-api \
+            --set image.tag=${{ github.event.workflow_run.head_sha }} \
+            --wait --timeout 120s
+
+      - name: Wait for rollout to complete
+        run: |
+          kubectl rollout status deployment/cats-dogs-app --timeout=120s
+
+      - name: Run smoke tests
+        run: |
+          bash deployment/smoke_test.sh

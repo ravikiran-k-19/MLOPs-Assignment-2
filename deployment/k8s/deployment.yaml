@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: cats-dogs-app
-          image: YOUR_DOCKERHUB_USERNAME/cats-dogs-api:latest
+          image: 2024ac05750/cats-dogs-api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8000

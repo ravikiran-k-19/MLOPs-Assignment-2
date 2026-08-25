@@ -4,7 +4,7 @@
 replicaCount: 1
 
 image:
-  repository: YOUR_DOCKERHUB_USERNAME/cats-dogs-api
+  repository: 2024ac05750/cats-dogs-api
   tag: latest
   pullPolicy: Always
 
