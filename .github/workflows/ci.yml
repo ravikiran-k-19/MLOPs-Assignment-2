@@ -149,32 +149,29 @@ jobs:
 
           dvc remote modify gdrive gdrive_use_service_account true
 
-      - name: Diagnose OpenSSL compatibility
-        run: |
-          echo "=== PyDrive2 ==="
-          pip show PyDrive2
-
-          echo "=== pyOpenSSL ==="
-          pip show pyOpenSSL
-
-          echo "=== cryptography ==="
-          pip show cryptography
-
-          echo "=== OpenSSL Python API ==="
-          python -c "import OpenSSL; print('pyOpenSSL version:', OpenSSL.__version__)"
-          python -c "from OpenSSL import crypto; print('crypto.sign exists:', hasattr(crypto, 'sign'))"
-
-          echo "=== Dependency tree ==="
-          pip freeze | grep -Ei "dvc|pydrive|openssl|cryptography|oauth|google|httplib2"
 
       # --------------------------------------------------------
       # Pull the model tracked by DVC
       # --------------------------------------------------------
-      - name: Pull trained model and data from DVC
+      - name: Pull model from DVC
         env:
           GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
         run: |
-          dvc pull --remote gdrive
+          for i in 1 2 3; do
+            echo "DVC pull attempt $i..."
+            if dvc pull --remote gdrive; then
+              echo "DVC pull succeeded"
+              break
+            fi
+
+            if [ "$i" -eq 3 ]; then
+              echo "DVC pull failed after 3 attempts"
+              exit 1
+            fi
+
+            echo "Retrying in 10 seconds..."
+            sleep 10
+          done
 
           echo "Checking DVC model..."
           test -f model.h5 || {
