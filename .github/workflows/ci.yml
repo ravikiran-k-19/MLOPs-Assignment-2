@@ -19,15 +19,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # --------------------------------------------------------
-      # Checkout
-      # --------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # --------------------------------------------------------
-      # Python
-      # --------------------------------------------------------
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
@@ -35,9 +29,6 @@ jobs:
           cache: "pip"
           cache-dependency-path: requirements.txt
 
-      # --------------------------------------------------------
-      # Dependencies
-      # --------------------------------------------------------
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -84,21 +75,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
 
-    # Only build/push Docker images for direct pushes to main.
-    # Pull requests run the test job only.
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
     steps:
-
-      # --------------------------------------------------------
-      # Checkout repository
-      # --------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # --------------------------------------------------------
-      # Python
-      # --------------------------------------------------------
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
@@ -107,19 +87,25 @@ jobs:
           cache-dependency-path: requirements.txt
 
       # --------------------------------------------------------
-      # Install project dependencies
-      #
-      # requirements.txt should contain:
-      #
-      # dvc==3.49.0
-      # dvc-gdrive==3.0.1
-      # pyOpenSSL==23.3.0
-      # cryptography==41.0.7
+      # Install DVC with Google Drive support
       # --------------------------------------------------------
-      - name: Install dependencies
+      - name: Install DVC and Google Drive dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+
+          pip install "dvc==3.49.0"
+          pip install "dvc-gdrive==3.0.1"
+
+          pip install "pathspec<0.12"
+          pip install "PyDrive2==1.21.3"
+          pip install "oauth2client==4.1.3"
+
+          pip install "google-api-python-client<2.180"
+          pip install "google-auth<2.40"
+          pip install "google-auth-oauthlib<1.2"
+
+          pip install "pyOpenSSL==23.3.0"
+          pip install "cryptography==41.0.7"
 
       # --------------------------------------------------------
       # Verify DVC / Google Drive dependency stack
@@ -168,7 +154,7 @@ jobs:
           dvc remote modify gdrive gdrive_use_service_account true
 
       # --------------------------------------------------------
-      # Pull model tracked by DVC
+      # Pull trained model and data from DVC
       # --------------------------------------------------------
       - name: Pull model from DVC
         env:
@@ -198,6 +184,7 @@ jobs:
             exit 1
           }
 
+          echo "DVC model found:"
           ls -lh model.h5
 
       # --------------------------------------------------------
@@ -210,9 +197,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # --------------------------------------------------------
-      # Build Docker image
-      #
-      # The image contains the REAL model pulled from DVC.
+      # Build image using the DVC-pulled model
       # --------------------------------------------------------
       - name: Build Docker image
         run: |
@@ -222,7 +207,7 @@ jobs:
             .
 
       # --------------------------------------------------------
-      # Push Docker image
+      # Push image
       # --------------------------------------------------------
       - name: Push Docker image
         run: |
