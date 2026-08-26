@@ -113,15 +113,18 @@ jobs:
       - name: Install DVC and Google Drive dependencies
         run: |
           pip install dvc==3.49.0 dvc-gdrive==3.0.1
-          pip install "cryptography<46" "pyOpenSSL>=24.0.0"
-      
-      - name: Verify DVC and crypto dependencies
+          pip install "pyOpenSSL==23.3.0" "cryptography==41.0.7"
+
+      - name: Verify DVC Google Drive stack
         run: |
+          python --version
           dvc --version
           pip show dvc
           pip show dvc-gdrive
-          pip show cryptography
+          pip show PyDrive2
+          pip show oauth2client
           pip show pyOpenSSL
+          pip show cryptography
 
       - name: Debug DVC environment
         run: |
@@ -145,6 +148,24 @@ jobs:
           }
 
           dvc remote modify gdrive gdrive_use_service_account true
+
+      - name: Diagnose OpenSSL compatibility
+        run: |
+          echo "=== PyDrive2 ==="
+          pip show PyDrive2
+
+          echo "=== pyOpenSSL ==="
+          pip show pyOpenSSL
+
+          echo "=== cryptography ==="
+          pip show cryptography
+
+          echo "=== OpenSSL Python API ==="
+          python -c "import OpenSSL; print('pyOpenSSL version:', OpenSSL.__version__)"
+          python -c "from OpenSSL import crypto; print('crypto.sign exists:', hasattr(crypto, 'sign'))"
+
+          echo "=== Dependency tree ==="
+          pip freeze | grep -Ei "dvc|pydrive|openssl|cryptography|oauth|google|httplib2"
 
       # --------------------------------------------------------
       # Pull the model tracked by DVC
