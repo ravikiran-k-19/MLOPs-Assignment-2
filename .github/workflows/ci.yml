@@ -110,6 +110,19 @@ jobs:
           pip show google-auth
           pip show google-auth-oauthlib
 
+      - name: Install DVC and Google Drive dependencies
+        run: |
+          pip install dvc==3.49.0 dvc-gdrive==3.0.1
+          pip install "cryptography<46" "pyOpenSSL>=24.0.0"
+      
+      - name: Verify DVC and crypto dependencies
+        run: |
+          dvc --version
+          pip show dvc
+          pip show dvc-gdrive
+          pip show cryptography
+          pip show pyOpenSSL
+
       - name: Debug DVC environment
         run: |
           python --version
