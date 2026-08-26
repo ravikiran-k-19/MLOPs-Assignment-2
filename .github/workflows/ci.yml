@@ -111,14 +111,16 @@ jobs:
             exit 1
           }
 
+          dvc remote modify gdrive gdrive_use_service_account true
+
       # --------------------------------------------------------
       # Pull the model tracked by DVC
       # --------------------------------------------------------
-      - name: Pull trained model from DVC
+      - name: Pull trained model and data from DVC
         env:
           GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
         run: |
-          dvc pull
+          dvc pull --remote gdrive
 
           echo "Checking DVC model..."
           test -f model.h5 || {
