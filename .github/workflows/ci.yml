@@ -89,11 +89,31 @@ jobs:
       # --------------------------------------------------------
       # Install DVC with Google Drive support
       # --------------------------------------------------------
-      - name: Install DVC
+      - name: Install DVC with Google Drive support
         run: |
           python -m pip install --upgrade pip
+
           pip install "dvc[gdrive]==3.49.0"
           pip install "pathspec<0.12"
+
+          pip install "google-api-python-client<2.180"
+          pip install "google-auth<2.40"
+          pip install "google-auth-oauthlib<1.2"
+
+      - name: Debug DVC Google Drive dependencies
+        run: |
+          dvc --version
+          pip show dvc
+          pip show dvc-gdrive
+          pip show oauth2client
+          pip show google-api-python-client
+          pip show google-auth
+          pip show google-auth-oauthlib
+
+      - name: Debug DVC environment
+        run: |
+          python --version
+          pip freeze | grep -E "dvc|gdrive|google|oauth|httplib2"
 
       # --------------------------------------------------------
       # Authenticate with Google Drive
