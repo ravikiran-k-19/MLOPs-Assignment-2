@@ -65,9 +65,11 @@ jobs:
         env:
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          MANUAL_IMAGE_TAG: ${{ inputs.image_tag }}
         run: |
           Write-Host "HEAD_SHA configured: $(-not [string]::IsNullOrWhiteSpace($env:HEAD_SHA))"
           Write-Host "DOCKERHUB_USERNAME configured: $(-not [string]::IsNullOrWhiteSpace($env:DOCKERHUB_USERNAME))"
+          Write-Host "MANUAL_IMAGE_TAG configured: $(-not [string]::IsNullOrWhiteSpace($env:MANUAL_IMAGE_TAG))"
 
       # ==========================================================
       # 3. Deploy exact image created by CI
@@ -76,7 +78,7 @@ jobs:
         shell: powershell
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          IMAGE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.image_tag || github.event.workflow_run.head_sha }}
+          IMAGE_TAG: ${{ inputs.image_tag || github.event.workflow_run.head_sha }}
         run: |
           Write-Host "=========================================="
           Write-Host "Deploying Cats-Dogs API"
@@ -84,6 +86,11 @@ jobs:
           Write-Host "Image:"
           Write-Host "$DOCKERHUB_USERNAME/cats-dogs-api:$IMAGE_TAG"
           Write-Host ""
+
+          if ([string]::IsNullOrWhiteSpace($env:IMAGE_TAG)) {
+            Write-Error "IMAGE_TAG is EMPTY"
+            exit 1
+          }
 
           helm upgrade --install cats-dogs-app deployment/helm `
             --set image.repository="$DOCKERHUB_USERNAME/cats-dogs-api" `
