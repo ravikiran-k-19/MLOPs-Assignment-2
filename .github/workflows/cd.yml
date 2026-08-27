@@ -136,7 +136,7 @@ jobs:
           Write-Host "=========================================="
           Write-Host "DEPLOYMENT SUCCESSFUL"
           Write-Host "=========================================="
-          Write-Host "Image: $DOCKERHUB_USERNAME/cats-dogs-api:$IMAGE_TAG"
+          Write-Host "Image: $env:DOCKERHUB_USERNAME/cats-dogs-api:$env:IMAGE_TAG"
           Write-Host "Application: cats-dogs-app"
           Write-Host "Namespace: default"
           Write-Host ""
