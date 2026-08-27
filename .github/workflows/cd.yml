@@ -163,8 +163,14 @@ jobs:
       - name: Run smoke tests
         shell: powershell
         run: |
+          Write-Host "Testing port-forward with curl..."
+
+          curl.exe -v http://127.0.0.1:18000/health
+
+          Write-Host ""
+          Write-Host "Running smoke tests..."
+
           .\deployment\smoke_test.ps1
-      
       # ==========================================================
       # 8. Stop port forwarding
       # ==========================================================
