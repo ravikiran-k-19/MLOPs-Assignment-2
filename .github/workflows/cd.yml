@@ -179,10 +179,10 @@ jobs:
         shell: powershell
         run: |
           if (Test-Path "$env:GITHUB_WORKSPACE\portforward.pid") {
-              $pid = Get-Content "$env:GITHUB_WORKSPACE\portforward.pid"
+              $portForwardPid = Get-Content "$env:GITHUB_WORKSPACE\portforward.pid"
 
-              if (Get-Process -Id $pid -ErrorAction SilentlyContinue) {
-                  Stop-Process -Id $pid -Force
+              if (Get-Process -Id $portForwardPid -ErrorAction SilentlyContinue) {
+                  Stop-Process -Id $portForwardPid -Force
                   Write-Host "Port-forward stopped."
               }
           }
