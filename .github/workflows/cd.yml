@@ -172,7 +172,7 @@ jobs:
 
           .\deployment\smoke_test.ps1
       # ==========================================================
-      # 8. Stop port forwarding
+      # 8. Stop port forwarding post smoke test execution
       # ==========================================================
       - name: Stop port-forward
         if: always()
