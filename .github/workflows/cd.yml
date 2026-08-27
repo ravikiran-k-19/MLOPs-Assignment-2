@@ -65,9 +65,11 @@ jobs:
         env:
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          MANUAL_IMAGE_TAG: ${{ inputs.image_tag }}
         run: |
           Write-Host "HEAD_SHA configured: $(-not [string]::IsNullOrWhiteSpace($env:HEAD_SHA))"
           Write-Host "DOCKERHUB_USERNAME configured: $(-not [string]::IsNullOrWhiteSpace($env:DOCKERHUB_USERNAME))"
+          Write-Host "MANUAL_IMAGE_TAG configured: $(-not [string]::IsNullOrWhiteSpace($env:MANUAL_IMAGE_TAG))"
 
       # ==========================================================
       # 3. Deploy exact image created by CI
