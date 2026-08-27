@@ -2,6 +2,11 @@ name: CD — Deploy to Minikube via Helm
 
 on:
   workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag to deploy'
+        required: true
+        default: 'latest'
 
   workflow_run:
     workflows: ["CI — Lint, Test, Coverage, Build & Push"]
@@ -71,7 +76,7 @@ jobs:
         shell: powershell
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+          IMAGE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.image_tag || github.event.workflow_run.head_sha }}
         run: |
           Write-Host "=========================================="
           Write-Host "Deploying Cats-Dogs API"
