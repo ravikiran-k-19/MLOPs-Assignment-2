@@ -115,16 +115,74 @@ jobs:
           Write-Host "=========================================="
           kubectl get service cats-dogs-app
 
+
       # ==========================================================
-      # 6. Run end-to-end smoke tests
+      # 6. Start port forwarding for the smoke test
+      # ==========================================================
+      - name: Start port-forward
+        shell: powershell
+        run: |
+          $portForward = Start-Process kubectl `
+            -ArgumentList "port-forward service/cats-dogs-app 18000:80" `
+            -PassThru `
+            -WindowStyle Hidden
+
+          Write-Host "Port-forward started with PID $($portForward.Id)"
+
+          $ready = $false
+
+          for ($i = 1; $i -le 30; $i++) {
+              Start-Sleep -Seconds 1
+
+              $connection = Test-NetConnection `
+                  -ComputerName 127.0.0.1 `
+                  -Port 18000 `
+                  -WarningAction SilentlyContinue
+
+              if ($connection.TcpTestSucceeded) {
+                  $ready = $true
+                  Write-Host "Port-forward is ready."
+                  break
+              }
+
+              Write-Host "Waiting for port-forward... ($i/30)"
+          }
+
+          if (-not $ready) {
+              Write-Error "Port-forward failed to start"
+              Stop-Process -Id $portForward.Id -Force -ErrorAction SilentlyContinue
+              exit 1
+          }
+
+          # Store PID for next step
+          $portForward.Id | Out-File "$env:GITHUB_WORKSPACE\portforward.pid"
+
+      # ==========================================================
+      # 7. Run end-to-end smoke tests
       # ==========================================================
       - name: Run smoke tests
         shell: powershell
         run: |
           .\deployment\smoke_test.ps1
-
+      
       # ==========================================================
-      # 7. Deployment summary
+      # 8. Stop port forwarding
+      # ==========================================================
+      - name: Stop port-forward
+        if: always()
+        shell: powershell
+        run: |
+          if (Test-Path "$env:GITHUB_WORKSPACE\portforward.pid") {
+              $pid = Get-Content "$env:GITHUB_WORKSPACE\portforward.pid"
+
+              if (Get-Process -Id $pid -ErrorAction SilentlyContinue) {
+                  Stop-Process -Id $pid -Force
+                  Write-Host "Port-forward stopped."
+              }
+          }
+      
+      # ==========================================================
+      # 9. Deployment summary
       # ==========================================================
       - name: Deployment summary
         shell: powershell
