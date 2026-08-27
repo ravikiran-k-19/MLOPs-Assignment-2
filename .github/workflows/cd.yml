@@ -84,7 +84,7 @@ jobs:
           Write-Host "Deploying Cats-Dogs API"
           Write-Host "=========================================="
           Write-Host "Image:"
-          Write-Host "$DOCKERHUB_USERNAME/cats-dogs-api:$IMAGE_TAG"
+          Write-Host "$env:DOCKERHUB_USERNAME/cats-dogs-api:$env:IMAGE_TAG"
           Write-Host ""
 
           if ([string]::IsNullOrWhiteSpace($env:IMAGE_TAG)) {
@@ -93,8 +93,8 @@ jobs:
           }
 
           helm upgrade --install cats-dogs-app deployment/helm `
-            --set image.repository="$DOCKERHUB_USERNAME/cats-dogs-api" `
-            --set image.tag="$IMAGE_TAG" `
+            --set image.repository="$env:DOCKERHUB_USERNAME/cats-dogs-api" `
+            --set image.tag="$env:IMAGE_TAG" `
             --wait `
             --timeout 120s
 
