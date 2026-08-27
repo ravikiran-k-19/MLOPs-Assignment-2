@@ -1,6 +1,8 @@
 name: CD — Deploy to Minikube via Helm
 
 on:
+  workflow_dispatch:
+
   workflow_run:
     workflows: ["CI — Lint, Test, Coverage, Build & Push"]
     types:
@@ -53,13 +55,14 @@ jobs:
       # ==========================================================
       # 3. Debug workflow run
       # ==========================================================
-      - name: Debug workflow run
+      - name: Debug variables
         shell: powershell
+        env:
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-          Write-Host "Workflow: ${{ github.event.workflow_run.name }}"
-          Write-Host "Conclusion: ${{ github.event.workflow_run.conclusion }}"
-          Write-Host "Head SHA: ${{ github.event.workflow_run.head_sha }}"
-          Write-Host "Run ID: ${{ github.event.workflow_run.id }}"
+          Write-Host "HEAD_SHA configured: $(-not [string]::IsNullOrWhiteSpace($env:HEAD_SHA))"
+          Write-Host "DOCKERHUB_USERNAME configured: $(-not [string]::IsNullOrWhiteSpace($env:DOCKERHUB_USERNAME))"
 
       # ==========================================================
       # 3. Deploy exact image created by CI
