@@ -49,6 +49,18 @@ jobs:
         run: |
           minikube status
 
+
+      # ==========================================================
+      # 3. Debug workflow run
+      # ==========================================================
+      - name: Debug workflow run
+        shell: powershell
+        run: |
+          Write-Host "Workflow: ${{ github.event.workflow_run.name }}"
+          Write-Host "Conclusion: ${{ github.event.workflow_run.conclusion }}"
+          Write-Host "Head SHA: ${{ github.event.workflow_run.head_sha }}"
+          Write-Host "Run ID: ${{ github.event.workflow_run.id }}"
+
       # ==========================================================
       # 3. Deploy exact image created by CI
       # ==========================================================
