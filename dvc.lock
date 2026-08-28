@@ -38,7 +38,7 @@ stages:
     outs:
     - path: model.h5
       hash: md5
-      md5: 0041528f87e56d616298aa310c4c05fc
+      md5: 695cc750bb2a25d2f4e579918af6e6c4
       size: 155346696
   evaluate:
     cmd: python src/evaluate.py --data_dir data/processed --model_path model.h5
@@ -50,7 +50,7 @@ stages:
       nfiles: 24998
     - path: model.h5
       hash: md5
-      md5: 0041528f87e56d616298aa310c4c05fc
+      md5: 695cc750bb2a25d2f4e579918af6e6c4
       size: 155346696
     - path: src/evaluate.py
       hash: md5
@@ -59,5 +59,5 @@ stages:
     outs:
     - path: metrics.json
       hash: md5
-      md5: 4f3ad67b502c3fdb25a8a3d1d0f79ebc
+      md5: 2305853a5a99d2324c7e55841ac8e2c9
       size: 55

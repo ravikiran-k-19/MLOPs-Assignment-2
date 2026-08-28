@@ -23,6 +23,8 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 from PIL import Image
 from src.predict import run_inference
+from prometheus_client import Counter, Gauge, generate_latest, CONTENT_TYPE_LATEST
+from fastapi.responses import Response
 
 # Allow importing from src/ when running inside the container
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -42,6 +44,28 @@ _stats = {
     "total_latency_ms": 0.0,
     "errors": 0,
 }
+
+# Prometheus metrics
+REQUEST_COUNT = Counter(
+    "cats_dogs_requests_total",
+    "Total number of prediction requests",
+)
+
+CAT_COUNT = Counter(
+    "cats_dogs_predictions_total",
+    "Total number of predictions by class",
+    ["class_name"],
+)
+
+ERROR_COUNT = Counter(
+    "cats_dogs_errors_total",
+    "Total number of prediction errors",
+)
+
+LATENCY = Gauge(
+    "cats_dogs_avg_latency_ms",
+    "Average prediction latency in milliseconds",
+)
 
 # Path where simulate_requests.py writes its results
 PERFORMANCE_LOG = os.path.join(os.path.dirname(__file__), "..", "performance_log.json")
@@ -73,11 +97,13 @@ async def predict(file: UploadFile = File(...)):
     - probabilities: {"cat": float, "dog": float}
     """
     _stats["total_requests"] += 1
+    REQUEST_COUNT.inc()
     start = time.time()
 
     # Validate file type
     if file.content_type not in ("image/jpeg", "image/png"):
         _stats["errors"] += 1
+        ERROR_COUNT.inc()
         raise HTTPException(status_code=400, detail="Only JPEG and PNG images are supported.")
 
     try:
@@ -85,25 +111,33 @@ async def predict(file: UploadFile = File(...)):
         image = Image.open(BytesIO(contents))
     except Exception:
         _stats["errors"] += 1
+        ERROR_COUNT.inc()
         raise HTTPException(status_code=400, detail="Could not read the uploaded image.")
 
     try:
         result = run_inference(image, model_path=MODEL_PATH)
     except FileNotFoundError as e:
         _stats["errors"] += 1
+        ERROR_COUNT.inc()
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         _stats["errors"] += 1
+        ERROR_COUNT.inc()
         logger.error(f"Inference error: {e}")
         raise HTTPException(status_code=500, detail="Inference failed.")
 
     elapsed_ms = (time.time() - start) * 1000
     _stats["total_latency_ms"] += elapsed_ms
+    LATENCY.set(
+        _stats["total_latency_ms"] / _stats["total_requests"]
+    )
 
     if result["label"] == "cat":
         _stats["cat_count"] += 1
+        CAT_COUNT.labels(class_name="cat").inc()
     else:
         _stats["dog_count"] += 1
+        CAT_COUNT.labels(class_name="dog").inc()
 
     logger.info(
         f"predict | file={file.filename} | label={result['label']} "
@@ -131,6 +165,15 @@ def metrics():
         "errors": _stats["errors"],
         "avg_latency_ms": avg_latency,
     }
+
+
+@app.get("/prometheus", include_in_schema=False)
+def prometheus_metrics():
+    """Prometheus metrics endpoint."""
+    return Response(
+        content=generate_latest(),
+        media_type=CONTENT_TYPE_LATEST,
+    )
 
 
 @app.get("/performance", summary="Latest batch performance from simulate_requests")

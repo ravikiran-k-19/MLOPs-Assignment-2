@@ -1,4 +1,4 @@
 {
-  "test_accuracy": 0.8074,
-  "test_loss": 0.4127
+  "test_accuracy": 0.8125,
+  "test_loss": 0.4368
 }
